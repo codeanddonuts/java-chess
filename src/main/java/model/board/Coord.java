@@ -64,7 +64,7 @@ public class Coord implements Comparable<Coord> {
 
     @Override
     public int compareTo(final Coord rhs) {
-        return (this.val > rhs.val) ? 1 : (this.val == rhs.val) ? 0 : -1;
+        return this.val - rhs.val;
     }
 
     @Override

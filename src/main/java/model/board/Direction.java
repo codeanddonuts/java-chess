@@ -3,14 +3,14 @@ package model.board;
 import java.util.stream.Stream;
 
 public enum Direction {
-    NORTH_WEST(-1, 1),
-    NORTH(0, 1),
-    NORTH_EAST(1, 1),
     EAST(1, 0),
-    SOUTH_EAST(1, -1),
-    SOUTH(0, -1),
+    NORTH_EAST(1, 1),
+    NORTH(0, 1),
+    NORTH_WEST(-1, 1),
+    WEST(-1, 0),
     SOUTH_WEST(-1, -1),
-    WEST(-1, 0);
+    SOUTH(0, -1),
+    SOUTH_EAST(1, -1);
 
     final int offsetX;
     final int offsetY;
@@ -33,25 +33,25 @@ public enum Direction {
     }
 
     public static Direction directionOfVector(Position lhs, Position rhs) {
+        final int degreeOfDirection = 45;
         if (lhs == rhs) {
             throw new IllegalArgumentException();
         }
-        return Stream.of(values())
-                    .filter(dir -> dir.offsetX == -lhs.x().compareTo(rhs.x()))
-                    .filter(dir -> dir.offsetY == -lhs.y().compareTo(rhs.y()))
-                    .findAny()
-                    .get();
+        final int direction = (int) (Math.toDegrees(
+                Math.atan2(rhs.y().val() - lhs.y().val(), rhs.x().val() - lhs.x().val())
+        ) + degreeOfDirection / 2.0) / degreeOfDirection;
+        return values()[direction >= 0 ? direction : direction + values().length - 1];
     }
 
     public Direction rotateClockwise(final int number) {
         return (number >= 0)
-                ? values()[(this.ordinal() + number) % values().length]
+                ? rotateCounterClockwise(values().length - (number % values().length))
                 : rotateCounterClockwise(-number);
     }
 
     public Direction rotateCounterClockwise(final int number) {
         return (number >= 0)
-                ? rotateClockwise(values().length - (number % values().length))
+                ? values()[(this.ordinal() + number) % values().length]
                 : rotateClockwise(-number);
     }
 }
