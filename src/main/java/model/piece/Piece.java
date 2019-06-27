@@ -49,6 +49,10 @@ public abstract class Piece implements Comparable<Piece> {
         return true;
     }
 
+    private Direction directionOf(Piece piece) {
+        return Direction.directionOfVector(this.position, piece.position);
+    }
+
     public boolean isKing() {
         return false;
     }

@@ -32,6 +32,17 @@ public enum Direction {
         return Stream.of(NORTH_WEST, NORTH_EAST, SOUTH_EAST, SOUTH_WEST);
     }
 
+    public static Direction directionOfVector(Position lhs, Position rhs) {
+        if (lhs == rhs) {
+            throw new IllegalArgumentException();
+        }
+        return Stream.of(values())
+                    .filter(dir -> dir.offsetX == -lhs.x().compareTo(rhs.x()))
+                    .filter(dir -> dir.offsetY == -lhs.y().compareTo(rhs.y()))
+                    .findAny()
+                    .get();
+    }
+
     public Direction rotateClockwise(final int number) {
         return (number >= 0)
                 ? values()[(this.ordinal() + number) % values().length]
