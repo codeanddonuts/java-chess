@@ -1,6 +1,7 @@
-package model.game;
+package model.game.db;
 
 import model.board.Position;
+import model.game.Turn;
 import model.game.exception.FailedToCreateLogTableException;
 import model.game.exception.FailedToEraseLogException;
 import model.game.exception.FailedToRetrieveLogException;
@@ -14,35 +15,11 @@ import java.util.List;
 import java.util.Queue;
 
 public class GameDAO {
-    private static final String server = "localhost";
-    private static final String database = "woowa";
-    private static final String userName = "donut";
-    private static final String password = "qwer1234";
-
     private static final Queue<LogVO> buffer = new LinkedList<>();
-
-    public static Connection connect() {
-        Connection con = null;
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        try {
-            con = DriverManager.getConnection(
-                    "jdbc:mysql://" + server + "/" + database + "?serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false",
-                    userName,
-                    password
-            );
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return con;
-    }
 
     public static List<LogVO> retrieveLog() {
         createLogTable();
-        try (Connection con = connect();
+        try (Connection con = DBConnection.connect();
              PreparedStatement pstmt = con.prepareStatement(
                      "SELECT turn, position_src, position_dest FROM chess_log"
              );
@@ -58,7 +35,7 @@ public class GameDAO {
     }
 
     private static void createLogTable() {
-        try (Connection con = connect();
+        try (Connection con = DBConnection.connect();
              PreparedStatement pstmt = con.prepareStatement(
                      "CREATE TABLE IF NOT EXISTS chess_log("
                              + "turn INT UNSIGNED NOT NULL PRIMARY KEY,"
@@ -87,7 +64,7 @@ public class GameDAO {
     }
 
     private static void writeLog(final LogVO log) {
-        try (Connection con = connect();
+        try (Connection con = DBConnection.connect();
              PreparedStatement pstmt = con.prepareStatement("INSERT INTO chess_log VALUES (?, ?, ?)")) {
             pstmt.setInt(1, log.turn().count());
             pstmt.setString(2, log.src().toString());
@@ -99,7 +76,7 @@ public class GameDAO {
     }
 
     public static void eraseLog() {
-        try (Connection con = connect();
+        try (Connection con = DBConnection.connect();
              PreparedStatement pstmt = con.prepareStatement("DELETE FROM chess_log")) {
             pstmt.executeUpdate();
         } catch (SQLException e) {
